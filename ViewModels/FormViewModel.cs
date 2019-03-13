@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.ComponentModel.DataAnnotations;
 using KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models;
 using KMA.ProgrammingInCSharp2019.Practice5.Navigation.Tools;
 using KMA.ProgrammingInCSharp2019.Practice5.Navigation.Tools.Managers;
@@ -9,9 +10,10 @@ using KMA.ProgrammingInCSharp2019.Practice5.Navigation.Tools.Navigation;
 
 namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.ViewModels
 {
-    internal class FormViewModel:BaseViewModel
+    internal class FormViewModel : BaseViewModel
     {
         #region Fields
+
         private Person _person;
         private string _name;
         private string _surname;
@@ -19,11 +21,15 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.ViewModels
         private DateTime _birth = new DateTime(1900, 1, 1);
 
         #region Commands
+
         private RelayCommand<object> _proceedCommand;
+
         #endregion
+
         #endregion
 
         #region Properties
+
         public string Name
         {
             get => _name;
@@ -74,25 +80,32 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.ViewModels
                            o => CanExecuteCommand()));
             }
         }
+
         #endregion
+
         #endregion
+
         private async void Result(object obj)
         {
-            await Task.Run(() => Thread.Sleep(100));
-            await Task.Run(() =>
+            Thread.Sleep(100);
+            var approve = await Task.Run(() =>
                 {
                     try
                     {
                         _person = new Person(_name, _surname, _birth, _email);
+                        return true;
                     }
                     catch (Exception e)
                     {
                         MessageBox.Show(e.Message, "Error");
+                        return false;
                     }
                 }
             );
-            NavigationManager.Instance.Navigate(ViewType.PersonInfo, _person);
+            if (approve)
+                NavigationManager.Instance.Navigate(ViewType.PersonInfo, _person);
         }
+
         public bool CanExecuteCommand()
         {
             return !string.IsNullOrWhiteSpace(_name) &&

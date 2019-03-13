@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
@@ -39,10 +41,9 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
         public string FemaleAdj() { return _adjBase + "а"; }
         public string MaleAdj() { return _adjBase + "ий"; }
     }
-    class ZodiacSignsInfo
+    static class ZodiacSignsInfo
     {
-        public static ZodiacWest[] SunSigns { get; } =
-        {
+        private static ZodiacWest[] _sunSigns = {
             new ZodiacWest("Водолій", 20),
             new ZodiacWest("Риби", 19),
             new ZodiacWest("Овен", 21),
@@ -54,30 +55,39 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
             new ZodiacWest("Терези", 23),
             new ZodiacWest("Скорпіон", 23),
             new ZodiacWest("Стрілець", 22),
-            new ZodiacWest("Козеріг", 22) };
+            new ZodiacWest("Козеріг", 22)
+        };
 
-        public static ZodiacChinese[] ChineseSigns { get; } =
-        {
-            new ZodiacChinese("Миша", true),
-            new ZodiacChinese("Бик", false),
-            new ZodiacChinese("Тигр", false),
-            new ZodiacChinese("Кіт", false),
-            new ZodiacChinese("Дракон", false),
-            new ZodiacChinese("Змія", true),
-            new ZodiacChinese("Кінь", false),
-            new ZodiacChinese("Коза", true),
-            new ZodiacChinese("Мавпа", true),
-            new ZodiacChinese("Півень", false),
-            new ZodiacChinese("Собака", false),
-            new ZodiacChinese("Свиня", true) };
+        public static ZodiacWest[] SunSigns => _sunSigns;
 
-        public static Element[] Elements { get; } =
+        private static ZodiacChinese[] _chineseSigns = {
+            
+                new ZodiacChinese("Миша", true),
+                new ZodiacChinese("Бик", false),
+                new ZodiacChinese("Тигр", false),
+                new ZodiacChinese("Кіт", false),
+                new ZodiacChinese("Дракон", false),
+                new ZodiacChinese("Змія", true),
+                new ZodiacChinese("Кінь", false),
+                new ZodiacChinese("Коза", true),
+                new ZodiacChinese("Мавпа", true),
+                new ZodiacChinese("Півень", false),
+                new ZodiacChinese("Собака", false),
+                new ZodiacChinese("Свиня", true)
+        };
+
+        public static ZodiacChinese[] ChineseSigns => _chineseSigns;
+
+        private static Element[] _elements =
         {
             new Element("Металев"),
             new Element("Водян"),
             new Element("Дерев'ян"),
             new Element("Вогнян"),
-            new Element("Землян") };
+            new Element("Землян")
+        };
+
+        public static Element[] Elements => _elements;
     }
     class Person
     {
@@ -92,6 +102,10 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
             _birthday = birthday;
             Email = email;
             Age = CountAge();
+            ValidateAge();
+            ValidateName();
+            ValidateEmail();
+            ValidateSurname();
             if (IsBirthday)
                 MessageBox.Show("З днем народження", "Congratulations");
             FindChineseSign();
@@ -103,6 +117,9 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
             Name = name;
             Surname = surname;
             Email = email;
+            ValidateEmail();
+            ValidateName();
+            ValidateSurname();
         }
         private int Age { get; set; }
 
@@ -114,7 +131,34 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
 
         public string Email { get; }
 
-        private bool IsValidAge => (Age > 0 && Age < 135);
+        private void ValidateAge()
+        {
+            if (Age > 135)
+                throw new TooOldPersonException(Age);
+            if(Age < 0)
+                throw new TooYoungPersonException(Age);
+        }
+
+        private void ValidateName()
+        {
+            Regex reg = new Regex("^[A-Z][a-z]{2,15}$");
+            if(!reg.IsMatch(Name))
+                throw new InvalidNamePersonException(Name);
+        }
+        private void ValidateEmail()
+        {
+            if (!String.IsNullOrEmpty(Email) && !new EmailAddressAttribute().IsValid(Email))
+            {
+                throw new InvalidEmailPersonException(Email);
+            }
+
+        }
+        private void ValidateSurname()
+        {
+            Regex reg = new Regex("^[A-Z][a-z]{2,18}$");
+            if (!reg.IsMatch(Surname))
+                throw new InvalidSurNamePersonException(Surname);
+        }
 
         public bool IsBirthday
         {
@@ -131,8 +175,6 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
             if (today.Month < _birthday.Month ||
                 (today.Month == _birthday.Month && today.Day < _birthday.Day))
                 Age--;
-            if (!IsValidAge)
-                throw new Exception("Не правильна дата народження");
             return Age;
         }
         public bool IsAdult => Age >= 18;
@@ -163,5 +205,80 @@ namespace KMA.ProgrammingInCSharp2019.Practice5.Navigation.Models
             }
         }
         public string SunSign => _zodiac.Name();
+    }
+    [Serializable]
+    class TooOldPersonException : Exception
+    {
+        public TooOldPersonException()
+        {
+
+        }
+
+        public TooOldPersonException(int age)
+            : base($"You must have died, {age} years impossible to live")
+        {
+
+        }
+
+    }
+    [Serializable]
+    class TooYoungPersonException : Exception
+    {
+        public TooYoungPersonException()
+        {
+
+        }
+
+        public TooYoungPersonException(int age)
+            : base($"You haven`t born yet: {age} years")
+        {
+
+        }
+
+    }
+    [Serializable]
+    class InvalidNamePersonException : Exception
+    {
+        public InvalidNamePersonException()
+        {
+
+        }
+
+        public InvalidNamePersonException(string name)
+            : base($"It can`t be your real name: {name}")
+        {
+
+        }
+
+    }
+    [Serializable]
+    class InvalidSurNamePersonException : Exception
+    {
+        public InvalidSurNamePersonException()
+        {
+
+        }
+
+        public InvalidSurNamePersonException(string name)
+            : base($"It can`t be your real surname: {name}")
+        {
+
+        }
+
+    }
+    [Serializable]
+    class InvalidEmailPersonException : Exception
+    {
+        public InvalidEmailPersonException()
+        {
+
+        }
+
+        public InvalidEmailPersonException(string email)
+            : base($"Invalid email address: {email}")
+        {
+
+        }
+
     }
 }

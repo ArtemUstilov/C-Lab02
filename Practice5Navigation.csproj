@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -67,6 +68,7 @@
     <Compile Include="Tools\Navigation\InitializationNavigationModel.cs" />
     <Compile Include="Tools\RelayCommand.cs" />
     <Compile Include="ViewModels\FormViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModal.cs" />
     <Compile Include="ViewModels\PersonViewModel.cs" />
     <Compile Include="Views\PersonView.xaml.cs">
       <DependentUpon>PersonView.xaml</DependentUpon>
@@ -81,7 +83,6 @@
     <Compile Include="Tools\Managers\LoaderMeneger.cs" />
     <Compile Include="Tools\PasswordBoxAssistant.cs" />
     <Compile Include="Models\Person.cs" />
-    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
